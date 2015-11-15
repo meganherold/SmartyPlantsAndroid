@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -18,8 +19,10 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.preference.SwitchPreference;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
+
 
 
 import java.util.List;
@@ -36,7 +39,7 @@ import java.util.Set;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
     /**
      * Determines whether to always show the simplified settings UI, where
      * settings are presented in a single list. When false, settings are shown
@@ -45,30 +48,51 @@ public class SettingsActivity extends PreferenceActivity {
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
     private static final int REQUEST_ENABLE_BT = 1;
-    ArrayAdapter<String> mArrayAdapter;
+    Bluetooth bluetooth;
+    public SwitchPreference light;
+    public SwitchPreference water;
+    SharedPreferences prefs;
+
+
     //system passes back REQUEST_ENABLE_BT in onActivityResult() as the requestCode parameter.
 
-    private BluetoothAdapter btAdapter;
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        callbluetooth();
+
         setupSimplePreferencesScreen();
+        bluetooth = new Bluetooth();
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
+        //bluetooth.callbluetooth();
     }
 
-    private void callbluetooth() {
-        btAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (btAdapter == null) {
-            //statusUpdate.setText("No Bluetooth on Device")
-            //there is no bluetooth on the device
-        } else if (!btAdapter.isEnabled()) {
-            //if bluetooth is not on turn it on
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            //if enabling succeeds, the activity recieves the RESULT_OK in onActivityResult()
-            //else, result code is RESULT_CANCELED
+    public void onSharedPreferenceChanged(SharedPreferences pref, String key)
+    {
+        if(key.equals("manual_lights_switch"))
+        {
+            Boolean two = prefs.getBoolean("manual_lights_switch", false);
+            if(two)
+            {
+                bluetooth.callbluetooth("{\"ON\":\"LIGHTS\"}");
+            }
+            else
+                bluetooth.callbluetooth("{\"OFF\":\"LIGHTS\"}");
+        }
+        else if(key.equals("manual_water_switch"))
+        {
+            Boolean two = prefs.getBoolean("manual_water_switch", false);
+            if(two)
+            {
+                bluetooth.callbluetooth("{\"ON\":\"WATER\"}");
+            }
+            else
+                bluetooth.callbluetooth("{\"OFF\":\"WATER\"}");
         }
     }
+
+
 
     //Query paired devices to see if the desired device is already knownpairedDevices = btAdapter.getBondedDevices();
     /*private void queryDevices()
@@ -122,6 +146,9 @@ public class SettingsActivity extends PreferenceActivity {
         //bindPreferenceSummaryToValue(findPreference("example_list"));
         //bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
         //bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+
+        //light = (SwitchPreference) findPreference("manual_lights_switch");
+        //water = (SwitchPreference) findPreference("manual_water_switch");
     }
 
     /**
@@ -174,45 +201,57 @@ public class SettingsActivity extends PreferenceActivity {
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
 
-            if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
 
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
-
-            } else if (preference instanceof RingtonePreference) {
-                // For ringtone preferences, look up the correct display value
-                // using RingtoneManager.
-                if (TextUtils.isEmpty(stringValue)) {
-                    // Empty values correspond to 'silent' (no ringtone).
-                    preference.setSummary(R.string.pref_ringtone_silent);
-
-                } else {
-                    Ringtone ringtone = RingtoneManager.getRingtone(
-                            preference.getContext(), Uri.parse(stringValue));
-
-                    if (ringtone == null) {
-                        // Clear the summary if there was a lookup error.
-                        preference.setSummary(null);
-                    } else {
-                        // Set the summary to reflect the new ringtone display
-                        // name.
-                        String name = ringtone.getTitle(preference.getContext());
-                        preference.setSummary(name);
-                    }
+            if (preference instanceof SwitchPreference) {
+                if(preference.getTitle().equals("Manual Lights"))
+                {
+                    String one = "Lights";
+                    String two = stringValue;
                 }
 
-            } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
             }
+//
+//                // For list preferences, look up the correct display value in
+//                // the preference's 'entries' list.
+//                ListPreference listPreference = (ListPreference) preference;
+//                int index = listPreference.findIndexOfValue(stringValue);
+//
+//                // Set the summary to reflect the new value.
+//                preference.setSummary(
+//                        index >= 0
+//                                ? listPreference.getEntries()[index]
+//                                : null);
+//
+//            } else if (preference instanceof RingtonePreference) {
+//                // For ringtone preferences, look up the correct display value
+//                // using RingtoneManager.
+//                if (TextUtils.isEmpty(stringValue)) {
+//                    // Empty values correspond to 'silent' (no ringtone).
+//                    preference.setSummary(R.string.pref_ringtone_silent);
+//
+//                } else {
+//                    Ringtone ringtone = RingtoneManager.getRingtone(
+//                            preference.getContext(), Uri.parse(stringValue));
+//
+//                    if (ringtone == null) {
+//                        // Clear the summary if there was a lookup error.
+//                        preference.setSummary(null);
+//                    } else {
+//                        // Set the summary to reflect the new ringtone display
+//                        // name.
+//                        String name = ringtone.getTitle(preference.getContext());
+//                        preference.setSummary(name);
+//                    }
+//                }
+//
+//            } else {
+//                // For all other preferences, set the summary to the value's
+//                // simple string representation.
+//                preference.setSummary(stringValue);
+//            }
+
+
+
             return true;
         }
     };

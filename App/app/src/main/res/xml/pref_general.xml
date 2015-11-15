@@ -24,7 +24,7 @@
         android:title="Manual Lights"
         android:switchTextOff="Off"
         android:switchTextOn="On"
-        android:defaultValue="On"
+        android:defaultValue="Off"
         android:dependency="am_lights_switch"/>
 
     <com.msmcpherson.app.TimePreference
@@ -53,7 +53,7 @@
         android:title="Manual Water"
         android:switchTextOff="Off"
         android:switchTextOn="On"
-        android:defaultValue="On"
+        android:defaultValue="Off"
         android:dependency="am_water_switch"/>
 
 
