@@ -1,10 +1,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreference
-        android:key="manual_timer_switch"
+        android:key="am_lights_switch"
         android:title="Lights"
         android:switchTextOff="Automatic"
-        android:switchTextOn="Manual" />
+        android:switchTextOn="Manual"
+        android:defaultValue="Manual"/>
 
     <SwitchPreference
         android:key="manual_lights_switch"
@@ -12,10 +13,44 @@
         android:switchTextOff="Off"
         android:switchTextOn="On"
         android:defaultValue="On"
-        android:dependency="manual_timer_switch"/>
+        android:dependency="am_lights_switch"/>
+
+    <com.msmcpherson.app.TimePreference
+        android:key="on_time"
+        android:title="Lights-On Time"
+        android:defaultValue="12:00"
+        android:summary="Set your desired starting time for lights."
+        />
+
+    <com.msmcpherson.app.TimePreference
+        android:key="off_time"
+        android:title="Lights-Off Time"
+        android:defaultValue="12:00"
+        android:summary="Set your desired ending time for lights."
+        />
+
+    <SwitchPreference
+        android:key="am_water_switch"
+        android:title="Water"
+        android:switchTextOff="Automatic"
+        android:switchTextOn="Manual"
+        android:defaultValue="Manual"/>
+
+    <SwitchPreference
+        android:key="manual_water_switch"
+        android:title="Manual Water"
+        android:switchTextOff="Off"
+        android:switchTextOn="On"
+        android:defaultValue="On"
+        android:dependency="am_water_switch"/>
 
 
-
+    <com.msmcpherson.app.SeekBarPreference
+        android:defaultValue="50"
+        android:key="moisture_level"
+        android:max="100"
+        android:summary="Set your desired soil moisture."
+        android:title="Moisture Level" />
 
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->

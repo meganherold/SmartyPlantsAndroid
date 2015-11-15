@@ -217,8 +217,14 @@ public class SettingsActivity extends PreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
+            bindPreferenceSummaryToValue(findPreference("am_lights_switch"));
+            bindPreferenceSummaryToValue(findPreference("manual_lights_switch"));
+            bindPreferenceSummaryToValue(findPreference("on_time"));
+            bindPreferenceSummaryToValue(findPreference("off_time"));
+            bindPreferenceSummaryToValue(findPreference("am_water_switch"));
+            bindPreferenceSummaryToValue(findPreference("manual_water_switch"));
+            bindPreferenceSummaryToValue(findPreference("manual_lights_switch"));
+            bindPreferenceSummaryToValue(findPreference("moisture_level"));
         }
     }
 
