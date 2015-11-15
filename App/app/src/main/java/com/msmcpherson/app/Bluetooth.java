@@ -17,6 +17,8 @@ import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,6 +28,8 @@ public class Bluetooth extends Activity {
     private BluetoothServerSocket mmServerSocket;
     private BluetoothDevice remoteDevice;
    // private BluetoothServerSocket socket2ya;
+   private InputStream mmInStream;
+    private OutputStream mmOutStream;
 
     //public Intent
 
@@ -75,7 +79,11 @@ public class Bluetooth extends Activity {
             if (socket != null) {
                 // Do work to manage the connection (in a separate thread)
                 manageConnectedSocket(socket);
-                mmServerSocket.close();
+                try {
+                    mmServerSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
             }
         }

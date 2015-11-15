@@ -19,6 +19,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.widget.ArrayAdapter;
 
 
 import java.util.List;
@@ -43,6 +44,10 @@ public class SettingsActivity extends PreferenceActivity {
      * shown on tablets.
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
+    private static final int REQUEST_ENABLE_BT = 1;
+    ArrayAdapter<String> mArrayAdapter;
+    //system passes back REQUEST_ENABLE_BT in onActivityResult() as the requestCode parameter.
+
     private BluetoothAdapter btAdapter;
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -59,12 +64,25 @@ public class SettingsActivity extends PreferenceActivity {
         } else if (!btAdapter.isEnabled()) {
             //if bluetooth is not on turn it on
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, 0);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            //if enabling succeeds, the activity recieves the RESULT_OK in onActivityResult()
+            //else, result code is RESULT_CANCELED
         }
     }
 
-        //MM: test and send the pi some data
-
+    //Query paired devices to see if the desired device is already knownpairedDevices = btAdapter.getBondedDevices();
+    /*private void queryDevices()
+    {// If there are paired devices
+        Set<BluetoothDevice> pairedDevices;
+        pairedDevices = btAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            // Loop through paired devices
+            for (BluetoothDevice device : pairedDevices) {
+                // Add the name and address to an array adapter to show in a ListView
+                mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+            }
+        }
+    }*/
 
     /**
      * Shows the simplified settings UI if the device configuration if the
