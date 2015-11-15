@@ -1,5 +1,17 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory
+        android:title="Smarty Plants"
+        android:textSize="20px"
+        android:layout="@xml/mylayout">
+
+        <Preference
+            android:key="pref_static_field_key"
+            android:selectable="false"
+            android:summary=""
+            android:layout="@xml/mylayout"/>
+    </PreferenceCategory>
+
     <SwitchPreference
         android:key="am_lights_switch"
         android:title="Lights"

@@ -1,7 +1,9 @@
 package com.msmcpherson.app;
 
 import android.annotation.TargetApi;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -39,13 +41,27 @@ public class SettingsActivity extends PreferenceActivity {
      * shown on tablets.
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
-
+    private BluetoothAdapter btAdapter;
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-
+        callbluetooth();
         setupSimplePreferencesScreen();
+    }
+
+    private void callbluetooth(){
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if(btAdapter == null){
+            //statusUpdate.setText("No Bluetooth on Device")
+            //there is no bluetooth on the device
+        }
+        else if(!btAdapter.isEnabled()) {
+            //if bluetooth is not on turn it on
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, 0);
+        }
+
     }
 
     /**
