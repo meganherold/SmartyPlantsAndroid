@@ -22,17 +22,22 @@ import java.util.UUID;
 
 public class Bluetooth extends Activity {
     private BluetoothAdapter btAdapter;
-    protected static final int DISCOVERY_REQUEST = 0;
+    protected static final int DISCOVERY_REQUEST = 1;
     private BluetoothServerSocket mmServerSocket;
     private BluetoothDevice remoteDevice;
-   // private BluetoothServerSocket socket2ya;
+    BroadcastReceiver bluetoothState = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            callbluetooth();//turn bluetooth on
+        }
+    }
 
     //public Intent
 
-    public void onCreate() {
+   /* public void onCreate() {
         callbluetooth();
         //connectdevices();
-    }
+    }*/
     private void callbluetooth(){
         //////////
         //Part 1//
@@ -44,90 +49,43 @@ public class Bluetooth extends Activity {
         }
         else if(!btAdapter.isEnabled()) {
             //if bluetooth is not on turn it on
-            Intent  enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, 0);
+            String ScanModeChanged = BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
+            String beDiscoverable = BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
+            IntentFilter filter = new IntentFilter(ScanModeChanged);
+            registerReceiver(bluetoothState,filter);
+            startActivityForResult(new Intent(beDiscoverable),DISCOVERY_REQUEST);//look for other devices when on
+
+            //Intent  enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            //startActivityForResult(enableBtIntent, 0);
         }
-        //////////
-        //Part 2//
-        //////////
-        String LastUsedDevice = getLastUsedRemoteBTDevice();
-        String ScanModeChanged = BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
-        String beDiscoverable = BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
-        String myUUID = "1ffaf3f1-f7b2-4490-adbb-fbf9992acd5b";
-        //BluetoothSocket socket = null;
-
-        BluetoothServerSocket tmp = null;
-        try {
-            tmp = btAdapter.listenUsingRfcommWithServiceRecord(btAdapter.getName(), UUID.fromString(myUUID));
-        }catch (IOException e){}
-
-        mmServerSocket = tmp;
-
-        BluetoothSocket socket = null;
-        // Keep listening until exception occurs or a socket is returned
-        while (true) {
-            try {
-                socket = mmServerSocket.accept();//this is plant (or pi)
-            } catch (IOException e) {
-                break;
-            }
-            // If a connection was accepted
-            if (socket != null) {
-                // Do work to manage the connection (in a separate thread)
-                manageConnectedSocket(socket);
-                mmServerSocket.close();
-                break;
-            }
+}
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == DISCOVERY_REQUEST){
+            //FIND BLUETOOTH DEVICES
+            findDevices();
         }
     }
-    public void manageConnectedSocket(BluetoothSocket socket) {
-        BluetoothSocket mmSocket = socket;
-        InputStream tmpIn = null;
-        OutputStream tmpOut = null;
-
-        // Get the input and output streams, using temp objects because
-        // member streams are final
-        try {
-            tmpIn = socket.getInputStream();
-            tmpOut = socket.getOutputStream();
-        } catch (IOException e) { }
-
-        mmInStream = tmpIn;
-        mmOutStream = tmpOut;
-    }
-
-    /*public connectdevices() {
+    private void findDevices(){
         String LastUsedDevice = getLastUsedRemoteBTDevice();
-        String ScanModeChanged = BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
-        String beDiscoverable = BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
-        String myUUID = "1ffaf3f1-f7b2-4490-adbb-fbf9992acd5b";
-
-        BluetoothServerSocket tmp = null;
-        try {
-            tmp = btAdapter.listenUsingRfcommWithServiceRecord(btAdapter.getName(), UUID.fromString(myUUID));
-        }catch (IOException e){}
-
-        mmServerSocket = tmp;
-
-        /*if(LastUsedDevice != null){
+        if(LastUsedDevice != null){
             Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
-            for(BluetoothDevice pairedDevice : pairedDevices ){
-                remoteDevice = pairedDevice;
+            for(BluetoothDevice pairedDevice :pairedDevices){
+                if(pairedDevice.getAddress().equals(LastUsedDevice)){
+                    remoteDevice = pairedDevice;
+                }
             }
         }
-        IntentFilter filter = new IntentFilter(ScanModeChanged);
-        registerReceiver(bluetoothState, filter);
-        startActivityForResult(new Intent(beDiscoverable),DISCOVERY_REQUEST);
-        //TO FIND DEVICES IS ABOVE
-        //set phone as server:
-        BluetoothServerSocket tmp = null;
-        tmp = btAdapter.listenUsingRfcommWithServiceRecord(NAME, MY_UUID);
-    }*/
+    }
+
+
+    ///////
     private String getLastUsedRemoteBTDevice(){
         SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         String RESULT = prefs.getString("LAST_REMOTE_DEVICE_ADDRESS", null);
         return RESULT;
     }
+    
     //for finding unknown devices
     /*BroadcastReceiver discoveryResult = new BroadcastReceiver() {
         @Override
