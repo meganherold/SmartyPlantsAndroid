@@ -2,6 +2,7 @@ package com.msmcpherson.app;
 
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -21,6 +22,7 @@ import android.text.TextUtils;
 
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -50,19 +52,20 @@ public class SettingsActivity extends PreferenceActivity {
         setupSimplePreferencesScreen();
     }
 
-    private void callbluetooth(){
+    private void callbluetooth() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(btAdapter == null){
+        if (btAdapter == null) {
             //statusUpdate.setText("No Bluetooth on Device")
             //there is no bluetooth on the device
-        }
-        else if(!btAdapter.isEnabled()) {
+        } else if (!btAdapter.isEnabled()) {
             //if bluetooth is not on turn it on
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 0);
         }
-
     }
+
+        //MM: test and send the pi some data
+
 
     /**
      * Shows the simplified settings UI if the device configuration if the
