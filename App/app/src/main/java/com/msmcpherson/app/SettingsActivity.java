@@ -65,7 +65,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
-        //bluetooth.callbluetooth();
+        bluetooth.callbluetooth();
     }
 
     public void onSharedPreferenceChanged(SharedPreferences pref, String key)
@@ -75,20 +75,20 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             Boolean two = prefs.getBoolean("manual_lights_switch", false);
             if(two)
             {
-                bluetooth.callbluetooth("{\"ON\":\"LIGHTS\"}");
+                bluetooth.connectThread.run("{\"ON\":\"LIGHTS\"}");
             }
             else
-                bluetooth.callbluetooth("{\"OFF\":\"LIGHTS\"}");
+                bluetooth.connectThread.run("{\"OFF\":\"LIGHTS\"}");
         }
         else if(key.equals("manual_water_switch"))
         {
             Boolean two = prefs.getBoolean("manual_water_switch", false);
             if(two)
             {
-                bluetooth.callbluetooth("{\"ON\":\"WATER\"}");
+                bluetooth.connectThread.run("{\"ON\":\"WATER\"}");
             }
             else
-                bluetooth.callbluetooth("{\"OFF\":\"WATER\"}");
+                bluetooth.connectThread.run("{\"OFF\":\"WATER\"}");
         }
     }
 

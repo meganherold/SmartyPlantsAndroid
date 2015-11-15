@@ -29,11 +29,11 @@ public class Bluetooth extends Activity {
     private BluetoothServerSocket mmServerSocket;
     private BluetoothDevice remoteDevice;
     private final UUID MY_UUID = UUID.fromString("94F39D29-7D6D-437D-973B-FBA39E49D4EE");
-
+    public ConnectThread connectThread;
     BroadcastReceiver bluetoothState = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            callbluetooth("{NULL:NULL}");//turn bluetooth on
+            callbluetooth();//turn bluetooth on
         }
     };
 
@@ -43,7 +43,7 @@ public class Bluetooth extends Activity {
          callbluetooth();
          //connectdevices();
      }*/
-    public void callbluetooth(String message){
+    public void callbluetooth(){
         //////////
         //Part 1//
         //////////
@@ -66,11 +66,10 @@ public class Bluetooth extends Activity {
         else{
             //bluetooth is already enabled on the device
             //right now, we'll assume the devices are already paired
-            Set<BluetoothDevice> bonded =  btAdapter.getBondedDevices();
-            ConnectThread connectThread = new ConnectThread((BluetoothDevice) bonded.toArray()[0], message);
-            connectThread.run();
-
-
+            Set<BluetoothDevice> bonded = btAdapter.getBondedDevices();
+            //ConnectThread connectThread = new ConnectThread((BluetoothDevice) bonded.toArray()[0], stream!!);
+            connectThread = new ConnectThread((BluetoothDevice) bonded.toArray()[0]);
+            //connectThread.run();
         }
 
     }
@@ -123,52 +122,40 @@ public class Bluetooth extends Activity {
     class ConnectThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
-        private String message;
 
-        public ConnectThread(BluetoothDevice device, String _message) {
+        public ConnectThread(BluetoothDevice device) {
             // Use a temporary object that is later assigned to mmSocket,
             // because mmSocket is final
             BluetoothSocket tmp = null;
             mmDevice = device;
-            message = _message;
 
             // Get a BluetoothSocket to connect with the given BluetoothDevice
             try {
                 // MY_UUID is the app's UUID string, also used by the server code
-                tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
-            } catch (IOException e) { }
+                tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
+            } catch (IOException e) {
+            }
             mmSocket = tmp;
+            try {
+                mmSocket.connect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        public void run() {
+        public void run(String message) {
             // Cancel discovery because it will slow down the connection
             btAdapter.cancelDiscovery();
 
-            try {
-                // Connect the device through the socket. This will block
-                // until it succeeds or throws an exception
-                mmSocket.connect();
-                // Do work to manage the connection (in a separate thread)
+            //Do work to manage the connection (in a separate thread)
                 manageConnectedSocket(mmSocket, message);
-                mmSocket.close();
-            } catch (IOException connectException) {
-                // Unable to connect; close the socket and get out
-
-                    // Do work to manage the connection (in a separate thread)
-                    manageConnectedSocket(mmSocket, message);
-                try {
-                    mmSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
+                //mmSocket.close();
 
 
         }
 
-        public void manageConnectedSocket(BluetoothSocket mmSocket, String message)
-        {
+
+        public void manageConnectedSocket(BluetoothSocket mmSocket, String message) {
             //initiate the thread for transferring data
             ConnectedThread connectedThread = new ConnectedThread(mmSocket);
 
@@ -178,15 +165,19 @@ public class Bluetooth extends Activity {
             connectedThread.write(message.getBytes());
         }
 
-        /** Will cancel an in-progress connection, and close the socket */
+        /**
+         * Will cancel an in-progress connection, and close the socket
+         */
         public void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+            }
         }
     }
 
-    private class ConnectedThread extends Thread {
+
+     class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
